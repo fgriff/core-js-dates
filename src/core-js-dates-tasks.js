@@ -272,8 +272,41 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  const splittedStartDate = period.start.split('-').map(Number);
+  let startDay = splittedStartDate[0];
+  const [, startMonth, startYear] = splittedStartDate;
+  const [endDay, endMonth, endYear] = period.end.split('-').map(Number);
+
+  const dates = [];
+
+  let currentDate = new Date(startYear, startMonth, startDay);
+  const endDate = new Date(endYear, endMonth, endDay);
+
+  while (currentDate <= endDate) {
+    for (let i = 0; i < countWorkDays; i += 1) {
+      if (currentDate <= endDate) {
+        dates.push(
+          new Date(startYear, startMonth - 1, startDay)
+            .toLocaleDateString('ru', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+            })
+            .replaceAll('.', '-')
+        );
+
+        startDay += 1;
+      }
+
+      currentDate = new Date(startYear, startMonth, startDay);
+    }
+
+    startDay += countOffDays;
+    currentDate = new Date(startYear, startMonth, startDay);
+  }
+
+  return dates;
 }
 
 /**
